@@ -2,8 +2,8 @@ import {
   START_FETCH,
   FETCH_SUCCESS,
   ERROR_CATCHED,
-  INPUT_EDIT_LOGIN,
-  INPUT_EDIT_REGISTER,
+  INPUT_LOGIN,
+  INPUT_SIGNUP,
   TOGGLE_MODE
 } from '../actions/actionTypes';
 
@@ -14,6 +14,42 @@ const loginReducer = (state = {}, action) => {
         ...state,
         isLoading: true,
       };
+    case FETCH_SUCCESS:
+      return {
+        ...state,
+        isLoading: false,
+      };
+    case ERROR_CATCHED:
+      return {
+        ...state,
+        error: 'User Name or Password is not correct.',
+        isLoading: false,
+      };
+    case INPUT_LOGIN:
+      return {
+        ...state,
+        credentialsLogin: {
+          username: '',
+          password: '',
+        },
+        error: '',
+      };
+    case INPUT_SIGNUP:
+      return {
+        ...state,
+        credentialsSignup: {
+          username: '',
+          password: '',
+        },
+        error: '',
+      };
+    case TOGGLE_MODE:
+      return {
+        ...state,
+        isLoginView: !state.isLoginView,
+      };
+    default:
+      return state;
   };
 };
 

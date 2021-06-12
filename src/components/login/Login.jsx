@@ -9,8 +9,18 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import axios from 'axios';
+import { useCookies } from 'react-cookie';
 
 import loginReducer from '../../reducers/loginReducer';
+import {
+  START_FETCH,
+  FETCH_SUCCESS,
+  ERROR_CATCHED,
+  INPUT_LOGIN,
+  INPUT_SIGNUP,
+  TOGGLE_MODE
+} from '../../actions/actionTypes';
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -36,11 +46,11 @@ const initialState = {
   isLoading: false,
   isLoginView: true,
   error: '',
-  creadentialsLogin: {
+  credentialsLogin: {
     username: '',
     password: '',
   },
-  creadentialsRegister: {
+  credentialsSignup: {
     username: '',
     password: '',
   },
@@ -49,6 +59,57 @@ const initialState = {
 const Login = () => {
   const classes = useStyles();
   const [state, dispatch] = useReducer(loginReducer, initialState);
+  const [cookie, setCookie, removeCookie] = useCookies(['userToken']);
+
+  const handelOnChangeCredentials = (type) => event => {
+    dispatch({
+      type,
+      field: event.target.name,
+      payload: event.target.value,
+    });
+  };
+
+  const loginOrSignup = async (event) => {
+    event.preventDefault();
+    if (state.isLoginView) {
+      try {
+        dispatch({ type: START_FETCH });
+
+        const res = await axios.post('http://localhost:8000/api/v1/jwt/create/', state.credentialsLogin, {
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        const userToken = res.data.token;
+        setCookie('userToken', userToken, { path: '/' });
+        userToken ? window.location.href = '/tasks' : window.location.href = '/';
+
+        dispatch({ type: FETCH_SUCCESS });
+
+      } catch (e) {
+        console.error(e.stack);
+        dispatch({ ERROR_CATCHED });
+      };
+    } else {
+      try {
+        dispatch({ type: START_FETCH });
+
+        await axios.post('http://localhost:8000/api/v1/users/', state.credentialsSignup, {
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        dispatch({ type: FETCH_SUCCESS });
+        dispatch({ type: TOGGLE_MODE });
+
+      } catch (e) {
+        console.error(e.stack);
+        dispatch({ ERROR_CATCHED });
+      };
+    };
+  };
+
+  const toggleView = () => {
+    dispatch({ TOGGLE_MODE });
+  }
 
   return (
     <Container component="main" maxWidth="xs">
@@ -58,9 +119,9 @@ const Login = () => {
           <LockOutlinedIcon />
         </Avatar>
         <Typography component="h1" variant="h5">
-          Sign in
+          {state.isLoginView ? 'Log In' : 'Sign Up'}
         </Typography>
-        <form className={classes.form} noValidate>
+        <form className={classes.form} onSubmit={loginOrSignup}>
           <TextField
             variant="outlined"
             margin="normal"

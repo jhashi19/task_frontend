@@ -1,8 +1,11 @@
-import Login from "./login/Login";
+import { CookiesProvider } from 'react-cookie';
+import Router from "./Router";
 
 function App() {
   return (
-    <Login />
+    <CookiesProvider>
+      <Router />
+    </CookiesProvider>
   );
 }
 

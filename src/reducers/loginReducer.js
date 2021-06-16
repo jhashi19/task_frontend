@@ -29,8 +29,8 @@ const loginReducer = (state = {}, action) => {
       return {
         ...state,
         credentialsLogin: {
-          username: '',
-          password: '',
+          ...state.credentialsLogin,
+          [action.field]: action.payload,
         },
         error: '',
       };
@@ -38,8 +38,8 @@ const loginReducer = (state = {}, action) => {
       return {
         ...state,
         credentialsSignup: {
-          username: '',
-          password: '',
+          ...state.credentialsSignup,
+          [action.field]: action.payload,
         },
         error: '',
       };

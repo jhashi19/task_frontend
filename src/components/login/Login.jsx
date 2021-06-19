@@ -10,7 +10,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import axios from 'axios';
-import { useCookies } from 'react-cookie';
 
 import loginReducer from '../../reducers/loginReducer';
 import {
@@ -62,7 +61,6 @@ const initialState = {
 const Login = () => {
   const classes = useStyles();
   const [state, dispatch] = useReducer(loginReducer, initialState);
-  const [cookie, setCookie, removeCookie] = useCookies(['userToken']);
 
   const handelOnChangeCredentialsLogin = () => event => {
     dispatch({
@@ -90,9 +88,9 @@ const Login = () => {
           headers: { 'Content-Type': 'application/json' }
         });
 
-        const userToken = res.data.token;
-        setCookie('userToken', userToken, { path: '/' });
-        userToken ? window.location.href = '/tasks' : window.location.href = '/';
+        const localJWT = res.data.access;
+        localStorage.setItem('local-JWT', localJWT)
+        localJWT ? window.location.href = '/tasks' : window.location.href = '/';
 
         dispatch({ type: FETCH_SUCCESS });
 
